@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Tenant (the couple / account owner) ─────────────────────
+model Tenant {
+  id           String    @id @default(uuid())
+  ownerEmail   String    @unique @map("owner_email")
+  ownerName    String    @map("owner_name")
+  passwordHash String    @map("password_hash")
+  status       String    @default("pending") @map("status") // 'pending' | 'active' | 'suspended'
+  approvedAt   DateTime? @map("approved_at")
+  approvedBy   String?   @map("approved_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  events Event[]
+
+  @@map("tenants")
+}
+
+// ─── Platform Admin ──────────────────────────────────────────
+model PlatformAdmin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("platform_admins")
+}
+
+// ─── Event ───────────────────────────────────────────────────
+model Event {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  slug        String
+  coupleNames String   @map("couple_names")
+  eventDate   DateTime @map("event_date")
+  venue       String
+  timezone    String   @default("UTC")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // New optional fields
+  photoUrl    String?  @map("photo_url")
+  verse       String?  @db.VarChar(1000) @map("verse")
+
+  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invitations Invitation[]
+  staff       StaffAccount[]
+
+  @@unique([tenantId, slug])
+  @@map("events")
+}
+
+// ─── Invitation ──────────────────────────────────────────────
+model Invitation {
+  id                 String  @id @default(uuid())
+  eventId            String  @map("event_id")
+  primaryContactName String  @map("primary_contact_name")
+  phone              String?
+  deliveryChannel    String? @map("delivery_channel")
+  inviteLinkToken    String  @unique @map("invite_link_token")
+  partySizeAllowed   Int?    @map("party_size_allowed")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  event  Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guests Guest[]
+
+  // partySizeConfirmed is NOT stored — computed in the service layer
+  // as: count of guests where isAttending = true
+
+  @@map("invitations")
+}
+
+// ─── Guest ───────────────────────────────────────────────────
+model Guest {
+  id                String    @id @default(uuid())
+  invitationId      String    @map("invitation_id")
+  fullName          String    @map("full_name")
+  relationshipGroup String?   @map("relationship_group")
+  needsPhysicalCard Boolean   @default(false) @map("needs_physical_card")
+  isAttending       Boolean?  @map("is_attending")
+  respondedAt       DateTime? @map("responded_at")
+  guestQrToken      String    @unique @map("guest_qr_token")
+  tableNumber       Int?      @map("table_number")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  checkin    Checkin?
+
+  @@map("guests")
+}
+
+// ─── Checkin ─────────────────────────────────────────────────
+model Checkin {
+  id          String   @id @default(uuid())
+  guestId     String   @unique @map("guest_id") // DB-level unique → prevents double check-in
+  checkedInAt DateTime @default(now()) @map("checked_in_at")
+  checkedInBy String?  @map("checked_in_by")
+  stationId   String?  @map("station_id")
+
+  guest Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@map("checkins")
+}
+
+// ─── Staff Account (door staff, PIN-based auth) ──────────────
+model StaffAccount {
+  id             String    @id @default(uuid())
+  eventId        String    @map("event_id")
+  name           String
+  pinCode        String    @map("pin_code")
+  stationId      String?   @map("station_id")
+  tokenExpiresAt DateTime? @map("token_expires_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("staff_accounts")
+}

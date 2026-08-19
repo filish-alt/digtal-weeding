@@ -1,0 +1,23 @@
+{
+  "name": "digital-wedding-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter @digital-wedding/api start:dev",
+    "dev:guest": "pnpm --filter @digital-wedding/guest dev",
+    "dev:admin": "pnpm --filter @digital-wedding/admin dev",
+    "dev:scanner": "pnpm --filter @digital-wedding/scanner dev",
+    "build:api": "pnpm --filter @digital-wedding/api build",
+    "build:types": "pnpm --filter @digital-wedding/shared-types build",
+    "build:guest": "pnpm --filter @digital-wedding/guest build",
+    "build:admin": "pnpm --filter @digital-wedding/admin build",
+    "build:scanner": "pnpm --filter @digital-wedding/scanner build",
+    "build": "pnpm build:types && pnpm build:api && pnpm build:guest && pnpm build:admin && pnpm build:scanner",
+    "test:api": "pnpm --filter @digital-wedding/api test:e2e"
+  },
+  "devDependencies": {
+    "@types/multer": "^2.2.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  }
+}

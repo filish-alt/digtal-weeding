@@ -1,0 +1,31 @@
+# Node dependencies
+node_modules/
+.pnpm-store/
+.npm
+.yarn
+
+# Build outputs
+dist/
+build/
+coverage/
+.turbo/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Scratch & artifacts
+scratch/
