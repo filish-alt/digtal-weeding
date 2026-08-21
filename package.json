@@ -14,6 +14,7 @@
     "build:admin": "pnpm --filter @digital-wedding/admin build",
     "build:scanner": "pnpm --filter @digital-wedding/scanner build",
     "build": "pnpm build:types && pnpm build:api && pnpm build:guest && pnpm build:admin && pnpm build:scanner",
+    "start:api": "pnpm --filter @digital-wedding/api start:prod",
     "test:api": "pnpm --filter @digital-wedding/api test:e2e"
   },
   "devDependencies": {
