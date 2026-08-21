@@ -17,6 +17,9 @@ interface PlatformAuthContextType {
 
 const PlatformAuthContext = createContext<PlatformAuthContextType | undefined>(undefined);
 
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const getApiUrl = (url: string) => (url.startsWith('http') ? url : `${API_BASE}${url}`);
+
 export const PlatformAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [platformToken, setPlatformToken] = useState<string | null>(() => {
     return localStorage.getItem('platform_admin_token');
@@ -28,7 +31,7 @@ export const PlatformAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   });
 
   const loginPlatform = async (email: string, password: string) => {
-    const res = await fetch('/api/auth/platform/login', {
+    const res = await fetch(getApiUrl('/api/auth/platform/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -64,7 +67,7 @@ export const PlatformAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       headers.set('Content-Type', 'application/json');
     }
 
-    const res = await fetch(url, { ...options, headers });
+    const res = await fetch(getApiUrl(url), { ...options, headers });
 
     if (res.status === 401 || res.status === 403) {
       logoutPlatform();

@@ -8,6 +8,7 @@ import {
   processOfflineQueue,
   getQueuedCheckins,
 } from '../services/db';
+import { getApiUrl } from '../utils/api';
 
 interface ScannerViewProps {
   token: string;
@@ -120,7 +121,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
 
     // Online check-in POST
     try {
-      const res = await fetch('/api/checkins', {
+      const res = await fetch(getApiUrl('/api/checkins'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

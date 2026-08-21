@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Invitation } from './types';
 import { AlertCircle, Sun, Moon, Globe, Printer, LayoutTemplate } from 'lucide-react';
+import { getApiUrl } from './utils/api';
 
 const GuestAppContent: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -41,7 +42,7 @@ const GuestAppContent: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/rsvp/${inviteToken}`);
+      const res = await fetch(getApiUrl(`/api/rsvp/${inviteToken}`));
       if (!res.ok) {
         if (res.status === 404) {
           throw new Error(t.invalidLink);
@@ -76,7 +77,7 @@ const GuestAppContent: React.FC = () => {
     setError(null);
 
     try {
-      const res = await fetch(`/api/rsvp/${token}`, {
+      const res = await fetch(getApiUrl(`/api/rsvp/${token}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

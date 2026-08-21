@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getAssetUrl } from '../utils/api';
 
 interface HeaderProps {
   coupleNames?: string;
@@ -21,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="hero-card">
       {photoUrl && (
         <div className="hero-photo-wrapper">
-          <img src={photoUrl} alt={coupleNames} className="hero-photo" />
+          <img src={getAssetUrl(photoUrl)} alt={coupleNames} className="hero-photo" />
         </div>
       )}
       <div className="monogram">

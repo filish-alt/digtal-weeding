@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Event } from '../types';
 import { Calendar, MapPin, Globe, Heart, Plus, Edit2, Check } from 'lucide-react';
+import { getAssetUrl } from '../utils/api';
 
 interface EventOverviewPageProps {
   currentEvent: Event | null;
@@ -197,7 +198,7 @@ export const EventOverviewPage: React.FC<EventOverviewPageProps> = ({
                 onChange={e => setPhotoFile(e.target.files?.[0] ?? null)}
               />
               {photoUrl && (
-                <img src={photoUrl} alt="Preview" style={{ marginTop: '8px', maxWidth: '100%', borderRadius: '4px' }} />
+                <img src={getAssetUrl(photoUrl)} alt="Preview" style={{ marginTop: '8px', maxWidth: '100%', borderRadius: '4px' }} />
               )}
             </div>
             {/* Optional verse */}
@@ -321,7 +322,7 @@ export const EventOverviewPage: React.FC<EventOverviewPageProps> = ({
               {/* Photo preview */}
               {currentEvent.photoUrl && (
                 <div style={{ marginTop: '12px' }}>
-                  <img src={currentEvent.photoUrl} alt="Event" style={{ maxWidth: '100%', borderRadius: '8px' }} />
+                  <img src={getAssetUrl(currentEvent.photoUrl)} alt="Event" style={{ maxWidth: '100%', borderRadius: '8px' }} />
                 </div>
               )}
               {/* Verse */}

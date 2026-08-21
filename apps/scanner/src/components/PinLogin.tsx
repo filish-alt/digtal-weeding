@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Key, MapPin, AlertCircle } from 'lucide-react';
 import { saveGuestCache } from '../services/db';
+import { getApiUrl } from '../utils/api';
 
 interface PinLoginProps {
   onLoginSuccess: (token: string, staffInfo: any) => void;
@@ -20,7 +21,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLoginSuccess }) => {
     setError(null);
 
     try {
-      const res = await fetch(`/api/events/${eventId}/staff/login`, {
+      const res = await fetch(getApiUrl(`/api/events/${eventId}/staff/login`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stationId, pinCode }),
@@ -36,7 +37,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLoginSuccess }) => {
 
       // Cache guest list locally for offline access
       try {
-        const guestRes = await fetch(`/api/events/${eventId}/guests`, {
+        const guestRes = await fetch(getApiUrl(`/api/events/${eventId}/guests`), {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (guestRes.ok) {

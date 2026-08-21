@@ -53,6 +53,8 @@ export const removeFromQueue = (id: string) => {
   localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
 };
 
+import { getApiUrl } from '../utils/api';
+
 export const processOfflineQueue = async (
   token: string,
   onProcessed?: (count: number) => void,
@@ -63,7 +65,7 @@ export const processOfflineQueue = async (
   let successCount = 0;
   for (const item of queue) {
     try {
-      const res = await fetch('/api/checkins', {
+      const res = await fetch(getApiUrl('/api/checkins'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

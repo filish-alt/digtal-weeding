@@ -11,13 +11,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const getApiUrl = (url: string) => (url.startsWith('http') ? url : `${API_BASE}${url}`);
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('tenant_admin_token');
   });
 
   const login = async (email: string, password: string) => {
-    const res = await fetch('/api/auth/tenant/login', {
+    const res = await fetch(getApiUrl('/api/auth/tenant/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -34,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signup = async (email: string, name: string, password: string) => {
-    const res = await fetch('/api/auth/tenant/signup', {
+    const res = await fetch(getApiUrl('/api/auth/tenant/signup'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, name, password }),
@@ -66,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers.set('Content-Type', 'application/json');
     }
 
-    const res = await fetch(url, { ...options, headers });
+    const res = await fetch(getApiUrl(url), { ...options, headers });
 
     if (res.status === 401) {
       logout();

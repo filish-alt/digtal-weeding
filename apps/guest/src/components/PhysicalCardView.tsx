@@ -4,6 +4,7 @@ import { Printer, Heart, Calendar, MapPin, QrCode, Sparkles, Globe } from 'lucid
 import { Invitation } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { formatSideBySideDates } from '../utils/ethiopianDate';
+import { getAssetUrl } from '../utils/api';
 
 interface PhysicalCardViewProps {
   invitation: Invitation;
@@ -67,7 +68,7 @@ export const PhysicalCardView: React.FC<PhysicalCardViewProps> = ({ invitation }
 
             {event?.photoUrl && (
               <div className="print-photo-wrapper">
-                <img src={event.photoUrl} alt={event.coupleNames} className="print-photo" />
+                <img src={getAssetUrl(event.photoUrl)} alt={event.coupleNames} className="print-photo" />
               </div>
             )}
 
