@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { getApiUrl } from '../utils/api';
 
 interface AuthContextType {
   token: string | null;
@@ -10,9 +11,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-const getApiUrl = (url: string) => (url.startsWith('http') ? url : `${API_BASE}${url}`);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(() => {

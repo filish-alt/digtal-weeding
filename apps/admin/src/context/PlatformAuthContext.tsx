@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { getApiUrl } from '../utils/api';
 
 interface PlatformAdminUser {
   id: string;
@@ -16,9 +17,6 @@ interface PlatformAuthContextType {
 }
 
 const PlatformAuthContext = createContext<PlatformAuthContextType | undefined>(undefined);
-
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-const getApiUrl = (url: string) => (url.startsWith('http') ? url : `${API_BASE}${url}`);
 
 export const PlatformAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [platformToken, setPlatformToken] = useState<string | null>(() => {
