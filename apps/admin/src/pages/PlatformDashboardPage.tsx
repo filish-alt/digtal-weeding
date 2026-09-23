@@ -315,13 +315,6 @@ export const PlatformDashboardPage: React.FC = () => {
         {/* Right tools */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
-            className="theme-toggle-btn"
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-          <button
             onClick={logoutPlatform}
             className="btn btn-outline"
             style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.86rem', padding: '8px 14px' }}

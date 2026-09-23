@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Key, MapPin, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Key, MapPin, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { saveGuestCache } from '../services/db';
 import { getApiUrl } from '../utils/api';
 
@@ -11,6 +11,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLoginSuccess }) => {
   const [eventId, setEventId] = useState('');
   const [stationId, setStationId] = useState('');
   const [pinCode, setPinCode] = useState('');
+  const [showPin, setShowPin] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,14 +65,14 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLoginSuccess }) => {
             display: 'inline-flex',
             padding: '16px',
             borderRadius: '50%',
-            backgroundColor: '#312e81',
-            color: '#818cf8',
+            backgroundColor: '#ffe4e6',
+            color: 'var(--primary)',
             marginBottom: '12px',
           }}
         >
           <ShieldCheck size={36} />
         </div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Staff Door Login</h2>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>Staff Door Login</h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
           Enter your assigned event ID, station, and security PIN code
         </p>
@@ -130,14 +131,38 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLoginSuccess }) => {
           <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>
             PIN CODE
           </label>
-          <input
-            type="password"
-            className="input-text"
-            placeholder="••••"
-            value={pinCode}
-            onChange={(e) => setPinCode(e.target.value)}
-            required
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showPin ? 'text' : 'password'}
+              className="input-text"
+              placeholder="••••"
+              value={pinCode}
+              onChange={(e) => setPinCode(e.target.value)}
+              style={{ paddingRight: '44px' }}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPin(!showPin)}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                padding: '4px',
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              title={showPin ? 'Hide PIN' : 'Show PIN'}
+            >
+              {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <button type="submit" className="btn-primary" disabled={loading}>

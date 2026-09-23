@@ -67,63 +67,7 @@
   --radius-full: 9999px;
 }
 
-[data-theme="dark"] {
-  /* === Dark Midnight Wedding Color Palette === */
-  --bg-color: #0d0513;
-  --bg-radial: radial-gradient(at 0% 0%, rgba(225, 29, 72, 0.22) 0px, transparent 50%),
-               radial-gradient(at 100% 10%, rgba(217, 119, 6, 0.2) 0px, transparent 50%),
-               radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.2) 0px, transparent 60%),
-               radial-gradient(at 80% 80%, rgba(219, 39, 119, 0.18) 0px, transparent 50%);
-  --card-bg: #1c0c27;
-  --card-border: #441e57;
-  --hero-bg: linear-gradient(135deg, #240d32 0%, #190724 100%);
-  --hero-border: #52246b;
 
-  /* Royal Romantic Rose & Ruby */
-  --primary-color: #fdf2f8;
-  --primary-hover: #ffffff;
-  --primary-light: #3b1428;
-
-  /* Floral Rose & Emerald Accents */
-  --accent-color: #f43f5e;
-  --accent-light: #4c0f2a;
-  --accent-emerald: #10b981;
-  --accent-emerald-light: #064e3b;
-
-  /* Radiant Champagne Gold */
-  --cta-color: #f59e0b;
-  --cta-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 60%, #d97706 100%);
-  --cta-hover: #fbbf24;
-  --cta-light: #3d2309;
-
-  /* Typography & Shades */
-  --text-dark: #fff0f7;
-  --text-muted: #c9a7bf;
-  --text-light: #94718a;
-
-  /* Elements */
-  --guest-card-bg: linear-gradient(135deg, #210d2e 0%, #180723 100%);
-  --guest-card-border: #4a215f;
-  --toggle-btn-bg: #180823;
-  --toggle-btn-border: #481f5e;
-  --toggle-btn-text: #c9a7bf;
-  --qr-card-bg: linear-gradient(135deg, #230d32 0%, #190724 100%);
-  --verse-bg: linear-gradient(135deg, #281036 0%, #1b0726 100%);
-  --verse-border: #6d330d;
-
-  /* Status Colors */
-  --success-color: #34d399;
-  --success-bg: #064e3b;
-  --success-border: #059669;
-
-  --error-color: #f87171;
-  --error-bg: #4c0519;
-  --error-border: #9f1239;
-
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(225, 29, 72, 0.15);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.8);
-}
 
 * {
   box-sizing: border-box;
@@ -645,7 +589,7 @@ body {
 
 .qr-card-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -653,11 +597,18 @@ body {
   background: var(--qr-card-bg);
   border: 2px solid #fbbf24;
   border-radius: var(--radius-lg);
-  padding: 28px 20px;
-  text-align: center;
+  padding: 30px 24px;
   box-shadow: 0 12px 30px rgba(217, 119, 6, 0.12);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 440px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .qr-card::before {
@@ -672,37 +623,93 @@ body {
 
 .qr-guest-name {
   font-family: var(--font-heading);
-  font-size: 1.7rem;
+  font-size: 1.85rem;
   font-weight: 700;
   color: var(--text-dark);
-  margin-bottom: 4px;
+  text-align: center;
+  line-height: 1.2;
 }
 
-.qr-table-info {
-  font-size: 0.9rem;
+.qr-badges-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.qr-table-badge {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #b45309;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.qr-group-badge {
+  font-size: 0.82rem;
   font-weight: 700;
-  color: var(--cta-color);
-  margin-bottom: 18px;
-  background: var(--cta-light);
-  display: inline-block;
+  color: #be123c;
+  background: #ffe4e6;
+  border: 1px solid #fecdd3;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.qr-guest-badge {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   padding: 4px 12px;
   border-radius: var(--radius-full);
 }
 
 .qr-code-wrapper {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 16px;
   background: #ffffff;
   border-radius: var(--radius-md);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
   border: 1.5px solid #fde68a;
-  margin-bottom: 14px;
+  margin: 4px 0;
+}
+
+.qr-passcode-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: #fff8eb;
+  border: 1.5px solid #f59e0b;
+  color: #92400e;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.qr-passcode-code {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #be123c;
+  background: rgba(225, 29, 72, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .qr-instruction {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--text-muted);
   font-weight: 600;
+  text-align: center;
+  margin-top: 2px;
 }
 
 /* Loading & Empty States */
@@ -1271,14 +1278,16 @@ body {
 }
 
 /* =========================================================
-   PRINT MEDIA RULES (TRIGGERED ON WINDOW.PRINT)
+   PRINT MEDIA RULES (TRIGGERED ON WINDOW.PRINT) — FULL COLOR LUXURY
 ========================================================= */
 @media print {
   body {
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #2b1b24 !important;
     padding: 0 !important;
     margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .no-print,
@@ -1306,33 +1315,148 @@ body {
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
-    padding: 20px !important;
+    padding: 16px !important;
     margin-bottom: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .print-card-border {
-    border: 2px solid #000000 !important;
-    background: #ffffff !important;
-    padding: 24px !important;
+    border: 2px solid #d4af37 !important;
+    background: radial-gradient(circle at center, #ffffff 60%, #fffbf8 100%) !important;
+    padding: 28px 24px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .print-gold-badge,
-  .print-salutation,
-  .print-scan-instruction,
-  .print-table-tag {
-    border: 1px solid #000000 !important;
-    color: #000000 !important;
-    background: #ffffff !important;
+  .print-gold-badge {
+    border: 1px solid #d4af37 !important;
+    color: #92400e !important;
+    background: #fff8eb !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .print-couple-names,
-  .print-back-title,
+  .print-monogram {
+    color: #e11d48 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-salutation {
+    color: #78350f !important;
+  }
+
+  .print-couple-names {
+    color: #2b0e25 !important;
+  }
+
+  .print-verse {
+    background: #fdfaf6 !important;
+    border: 1px dashed #e8d0bc !important;
+    color: #78350f !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-invitation-body {
+    color: #2b1b24 !important;
+  }
+
+  .print-invitation-text {
+    color: #583e4e !important;
+  }
+
+  .print-event-details-box {
+    background: #fffdfa !important;
+    border: 1px solid #ebd7c8 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-cal-badge {
+    background: rgba(217, 119, 6, 0.1) !important;
+    border: 1px solid rgba(217, 119, 6, 0.25) !important;
+    color: #854d0e !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-cal-main-date {
+    color: #2b1126 !important;
+  }
+
+  .print-cal-time-text {
+    color: #b45309 !important;
+  }
+
+  .print-detail-icon {
+    color: #d97706 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-detail-label {
+    color: #854d0e !important;
+  }
+
+  .print-detail-value {
+    color: #2b1126 !important;
+  }
+
+  .print-footer-tagline {
+    color: #92400e !important;
+  }
+
+  .print-back-title {
+    color: #2b0e25 !important;
+  }
+
+  .print-back-subtitle {
+    color: #78350f !important;
+  }
+
+  .print-qr-card {
+    background: #ffffff !important;
+    border: 1.5px solid #d4af37 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .print-qr-guest-name {
-    color: #000000 !important;
+    color: #2b1126 !important;
+  }
+
+  .print-table-tag {
+    background: #fdf2f8 !important;
+    color: #be123c !important;
+    border: 1px solid #fecdd3 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-group-tag {
+    color: #78350f !important;
+  }
+
+  .print-scan-instruction {
+    background: #fff8eb !important;
+    border: 1px solid #d4af37 !important;
+    color: #92400e !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-footer-info {
+    color: #a87d60 !important;
+    border-top: 1px dashed #e8d0bc !important;
   }
 
   .print-corner {
-    color: #000000 !important;
+    color: #d4af37 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 

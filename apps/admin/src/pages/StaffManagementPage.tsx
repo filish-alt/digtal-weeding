@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Event, StaffAccount } from '../types';
-import { ShieldCheck, Plus, Key, Clock, X } from 'lucide-react';
+import { ShieldCheck, Plus, Key, Clock, X, Eye, EyeOff } from 'lucide-react';
 
 interface StaffManagementPageProps {
   event: Event | null;
@@ -17,6 +17,7 @@ export const StaffManagementPage: React.FC<StaffManagementPageProps> = ({ event 
   const [name, setName] = useState('');
   const [stationId, setStationId] = useState('');
   const [pinCode, setPinCode] = useState('');
+  const [showPin, setShowPin] = useState(false);
 
   useEffect(() => {
     if (event) {
@@ -186,14 +187,38 @@ export const StaffManagementPage: React.FC<StaffManagementPageProps> = ({ event 
 
               <div className="form-group">
                 <label className="form-label">Security PIN Code (Numeric)</label>
-                <input
-                  type="password"
-                  className="input-text"
-                  placeholder="e.g. 1234 or 9876"
-                  value={pinCode}
-                  onChange={(e) => setPinCode(e.target.value)}
-                  required
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPin ? 'text' : 'password'}
+                    className="input-text"
+                    placeholder="e.g. 1234 or 9876"
+                    value={pinCode}
+                    onChange={(e) => setPinCode(e.target.value)}
+                    style={{ paddingRight: '44px' }}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin(!showPin)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      padding: '4px',
+                      cursor: 'pointer',
+                      color: 'var(--text-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    title={showPin ? 'Hide PIN' : 'Show PIN'}
+                  >
+                    {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>

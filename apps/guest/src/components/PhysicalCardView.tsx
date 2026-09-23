@@ -1,10 +1,11 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Printer, Heart, Calendar, MapPin, QrCode, Sparkles, Globe } from 'lucide-react';
+import { Printer, Heart, Calendar, MapPin, QrCode, Sparkles, Globe, KeyRound } from 'lucide-react';
 import { Invitation } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { formatSideBySideDates } from '../utils/ethiopianDate';
 import { getAssetUrl } from '../utils/api';
+import { formatGuestPassCode, formatInvitationCode } from '../utils/passcode';
 
 interface PhysicalCardViewProps {
   invitation: Invitation;
@@ -151,39 +152,62 @@ export const PhysicalCardView: React.FC<PhysicalCardViewProps> = ({ invitation }
               <div className="print-gold-badge">የመግቢያ ዲጂታል ፈቃድ (Digital Pass)</div>
               <h2 className="print-back-title">የመግቢያ ፈጣን QR ካርድ</h2>
               <p className="print-back-subtitle">
-                እባክዎ በሰርጉ መግቢያ በር ላይ ይህንን QR ኮድ ለበር አስተናጋጆች ያሳዩ
+                እባክዎ በሰርጉ መግቢያ በር ላይ ይህንን QR ኮድ ወይም ከታች ያለውን የመግቢያ ኮድ ለበር አስተናጋጆች ያሳዩ
               </p>
             </div>
 
             <div className="print-qr-grid">
               {guests.length > 0 ? (
-                guests.map((guest, idx) => (
-                  <div key={guest.id || idx} className="print-qr-card">
-                    <div className="print-qr-guest-name">
-                      {guest.fullName || invitation.primaryContactName}
-                    </div>
+                guests.map((guest, idx) => {
+                  const passCode = formatGuestPassCode(guest.id || guest.guestQrToken);
+                  return (
+                    <div key={guest.id || idx} className="print-qr-card">
+                      <div className="print-qr-guest-name">
+                        {guest.fullName || invitation.primaryContactName}
+                      </div>
 
-                    <div className="print-qr-image-wrapper">
-                      <QRCodeSVG
-                        value={guest.guestQrToken || invitation.inviteLinkToken}
-                        size={140}
-                        level="H"
-                        includeMargin={false}
-                      />
-                    </div>
+                      <div className="print-qr-image-wrapper">
+                        <QRCodeSVG
+                          value={guest.guestQrToken || invitation.inviteLinkToken}
+                          size={140}
+                          level="H"
+                          includeMargin={false}
+                        />
+                      </div>
 
-                    <div className="print-qr-meta">
-                      {guest.tableNumber ? (
-                        <span className="print-table-tag">ጠረጴዛ ቁጥር: {guest.tableNumber}</span>
-                      ) : (
-                        <span className="print-table-tag">አጠቃላይ መቀመጫ</span>
-                      )}
-                      {guest.relationshipGroup && (
-                        <span className="print-group-tag">{guest.relationshipGroup}</span>
-                      )}
+                      <div className="print-qr-meta">
+                        {/* Unique Passcode on Print Card */}
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            background: '#fff8eb',
+                            border: '1px solid #d4af37',
+                            color: '#92400e',
+                            fontWeight: 800,
+                            fontSize: '0.78rem',
+                            padding: '2px 8px',
+                            borderRadius: '999px',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          <KeyRound size={12} />
+                          <span>{passCode}</span>
+                        </div>
+
+                        {guest.tableNumber ? (
+                          <span className="print-table-tag">ጠረጴዛ ቁጥር: {guest.tableNumber}</span>
+                        ) : (
+                          <span className="print-table-tag">አጠቃላይ መቀመጫ</span>
+                        )}
+                        {guest.relationshipGroup && (
+                          <span className="print-group-tag">{guest.relationshipGroup}</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="print-qr-card">
                   <div className="print-qr-guest-name">{invitation.primaryContactName}</div>
@@ -196,6 +220,24 @@ export const PhysicalCardView: React.FC<PhysicalCardViewProps> = ({ invitation }
                     />
                   </div>
                   <div className="print-qr-meta">
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#fff8eb',
+                        border: '1px solid #d4af37',
+                        color: '#92400e',
+                        fontWeight: 800,
+                        fontSize: '0.78rem',
+                        padding: '2px 8px',
+                        borderRadius: '999px',
+                        marginBottom: '4px',
+                      }}
+                    >
+                      <KeyRound size={12} />
+                      <span>{formatInvitationCode(invitation.id)}</span>
+                    </div>
                     <span className="print-table-tag">የተጋባዥ ቁጥር: {invitation.partySizeAllowed || 1}</span>
                   </div>
                 </div>
@@ -208,7 +250,7 @@ export const PhysicalCardView: React.FC<PhysicalCardViewProps> = ({ invitation }
             </div>
 
             <div className="print-footer-info">
-              <div>የግብዣ መለያ: <code style={{ fontSize: '0.75rem' }}>{invitation.id.slice(0, 13)}</code></div>
+              <div>የግብዣ መለያ ኮድ: <code style={{ fontSize: '0.82rem', fontWeight: 800, color: '#92400e' }}>{formatInvitationCode(invitation.id)}</code></div>
               <div>አዘጋጅ: {event?.coupleNames}</div>
             </div>
           </div>

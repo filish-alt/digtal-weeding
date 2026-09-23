@@ -3,11 +3,11 @@
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* === Celebratory Dark Wedding Theme === */
-  --bg-dark: #190c1f;
-  --bg-dark-gradient: linear-gradient(180deg, #220e2a 0%, #17091d 100%);
-  --card-dark: #2a1334;
-  --card-border: #f59e0b;
+  /* === Elegant Light / White Wedding Theme === */
+  --bg-app: #f8fafc;
+  --bg-app-gradient: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
 
   --primary: #e11d48;
   --primary-hover: #be123c;
@@ -15,15 +15,15 @@
   --cta: #f59e0b;
   --cta-hover: #d97706;
 
-  --text-main: #fff1f5;
-  --text-muted: #d4b8cc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
 
-  --success: #34d399;
-  --success-bg: #064e3b;
-  --warning: #fbbf24;
-  --warning-bg: #451a03;
-  --danger: #f87171;
-  --danger-bg: #4c0519;
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
 
   --radius-lg: 18px;
   --radius-md: 12px;
@@ -38,7 +38,7 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-dark);
+  background-color: var(--bg-app);
   color: var(--text-main);
   line-height: 1.5;
   user-select: none;
@@ -51,17 +51,18 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-dark-gradient);
+  background: var(--bg-app-gradient);
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.05);
 }
 
 .pwa-header {
   padding: 18px 20px;
-  background: var(--card-dark);
-  border-bottom: 1.5px solid rgba(245, 158, 11, 0.3);
+  background: #ffffff;
+  border-bottom: 1.5px solid var(--card-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
 .pwa-title {
@@ -70,7 +71,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #fff1f5;
+  color: #0f172a;
 }
 
 .status-badge {
@@ -83,8 +84,17 @@ body {
   font-weight: 800;
 }
 
-.status-online { background: var(--success-bg); color: var(--success); border: 1px solid #059669; }
-.status-offline { background: var(--warning-bg); color: var(--warning); border: 1px solid #d97706; }
+.status-online {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid #a7f3d0;
+}
+
+.status-offline {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid #fde68a;
+}
 
 .pwa-body {
   flex: 1;
@@ -95,41 +105,45 @@ body {
 }
 
 .card {
-  background: var(--card-dark);
-  border: 1.5px solid rgba(245, 158, 11, 0.25);
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-lg);
   padding: 22px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .input-text {
   width: 100%;
   padding: 14px;
   border-radius: var(--radius-md);
-  border: 1.5px solid rgba(245, 158, 11, 0.3);
-  background: #15081b;
-  color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input-text:focus {
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.12);
+}
+
+.input-text::placeholder {
+  color: #94a3b8;
 }
 
 .btn-primary {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #e11d48 0%, #d97706 100%);
+  background: linear-gradient(135deg, #e11d48 0%, #f59e0b 100%);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-md);
   font-size: 1.05rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.35);
+  box-shadow: 0 6px 16px rgba(225, 29, 72, 0.22);
   transition: all 0.2s ease;
 }
 
@@ -142,16 +156,16 @@ body {
   width: 100%;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 2px solid #f59e0b;
-  background: #000000;
+  border: 2px solid #fbbf24;
+  background: #0f172a;
   min-height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12);
 }
 
-#reader {
+#qr-reader {
   width: 100%;
 }
 
@@ -159,8 +173,8 @@ body {
 .result-modal {
   position: fixed;
   inset: 0;
-  background: rgba(15, 6, 20, 0.88);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,14 +183,14 @@ body {
 }
 
 .result-card {
-  background: var(--card-dark);
+  background: #ffffff;
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 400px;
   padding: 28px;
   text-align: center;
   border: 2px solid #f59e0b;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .result-icon {
@@ -193,7 +207,7 @@ body {
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 8px;
-  color: #ffffff;
+  color: #0f172a;
 }
 
 .result-desc {
@@ -201,4 +215,3 @@ body {
   color: var(--text-muted);
   margin-bottom: 22px;
 }
-

@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Camera, Keyboard, LogOut, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import {
+  Camera,
+  LogOut,
+  Wifi,
+  WifiOff,
+  Search,
+  CheckCircle2,
+} from 'lucide-react';
 import { CheckinResult } from './CheckinResultModal';
 import {
   enqueueCheckin,
@@ -17,6 +24,25 @@ interface ScannerViewProps {
   onCheckinResult: (result: CheckinResult) => void;
 }
 
+interface LookupGuest {
+  id: string;
+  fullName: string;
+  tableNumber?: number | null;
+  relationshipGroup?: string | null;
+  isAttending?: boolean | null;
+  guestQrToken: string;
+  passcode: string;
+  invitationCode: string;
+  invitation?: {
+    id: string;
+    primaryContactName: string;
+    phone?: string;
+  };
+  isCheckedIn: boolean;
+  checkedInAt?: string | null;
+  stationId?: string | null;
+}
+
 export const ScannerView: React.FC<ScannerViewProps> = ({
   token,
   staffInfo,
@@ -24,17 +50,20 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   onCheckinResult,
 }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [manualToken, setManualToken] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<LookupGuest[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [queuedCount, setQueuedCount] = useState(getQueuedCheckins().length);
 
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isProcessingRef = useRef(false);
+  const searchTimeoutRef = useRef<any>(null);
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      processOfflineQueue(token, (count) => {
+      processOfflineQueue(token, () => {
         setQueuedCount(getQueuedCheckins().length);
       });
     };
@@ -43,7 +72,6 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Initial check for offline queue sync
     if (navigator.onLine) {
       processOfflineQueue(token, () => {
         setQueuedCount(getQueuedCheckins().length);
@@ -56,6 +84,76 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
       stopScanner();
     };
   }, [token]);
+
+  // Live lookup when user types a passcode, name, or phone number
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    const q = searchQuery.trim();
+    if (!q) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      setIsSearching(true);
+      if (isOnline) {
+        try {
+          const res = await fetch(
+            getApiUrl(`/api/checkins/lookup?q=${encodeURIComponent(q)}`),
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          );
+          if (res.ok) {
+            const data = await res.json();
+            setSearchResults(data);
+          }
+        } catch (e) {
+          console.error('Failed to lookup guests online', e);
+          fallbackOfflineSearch(q);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        fallbackOfflineSearch(q);
+        setIsSearching(false);
+      }
+    }, 280);
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [searchQuery, isOnline, token]);
+
+  const fallbackOfflineSearch = (q: string) => {
+    const cached = getGuestCache();
+    const clean = q.replace(/^INV-|^PASS-|^#/i, '').toLowerCase();
+    const matches: LookupGuest[] = cached
+      .filter(
+        (g) =>
+          (g.fullName && g.fullName.toLowerCase().includes(clean)) ||
+          (g.id && g.id.toLowerCase().startsWith(clean)) ||
+          (g.guestQrToken && g.guestQrToken.toLowerCase().startsWith(clean)),
+      )
+      .map((g) => ({
+        id: g.id || '',
+        fullName: g.fullName || 'Guest',
+        tableNumber: undefined,
+        relationshipGroup: undefined,
+        isAttending: g.isAttending,
+        guestQrToken: g.guestQrToken || '',
+        passcode: `PASS-${(g.id || '').replace(/-/g, '').slice(0, 6).toUpperCase()}`,
+        invitationCode: 'INV-OFFLINE',
+        isCheckedIn: false,
+      }));
+    setSearchResults(matches);
+  };
 
   const startScanner = async () => {
     setIsScanning(true);
@@ -73,7 +171,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         (decodedText) => {
           if (!isProcessingRef.current) {
             isProcessingRef.current = true;
-            handleQrScanned(decodedText);
+            handleCheckin(decodedText);
           }
         },
         () => {},
@@ -95,14 +193,17 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
     setIsScanning(false);
   };
 
-  const handleQrScanned = async (guestQrToken: string) => {
+  const handleCheckin = async (identifier: string) => {
     stopScanner();
 
     // Check offline mode
     if (!navigator.onLine) {
-      // Find guest in local cache
-      const cached = getGuestCache().find((g) => g.guestQrToken === guestQrToken);
-      enqueueCheckin(guestQrToken, staffInfo?.stationId);
+      const cached = getGuestCache().find(
+        (g) =>
+          g.guestQrToken === identifier ||
+          g.id?.startsWith(identifier.replace(/^INV-|^PASS-|^#/i, '').toLowerCase()),
+      );
+      enqueueCheckin(identifier, staffInfo?.stationId);
       setQueuedCount(getQueuedCheckins().length);
 
       onCheckinResult({
@@ -128,7 +229,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          guestQrToken,
+          guestQrToken: identifier,
           stationId: staffInfo?.stationId,
         }),
       });
@@ -145,7 +246,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         onCheckinResult({
           type: 'error',
           title: 'Check-in Failed',
-          message: errorData.message || 'Invalid QR code or token.',
+          message: errorData.message || 'Invalid passcode or QR token.',
         });
       } else {
         const data = await res.json();
@@ -153,14 +254,23 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           type: 'success',
           title: 'Check-in Successful',
           guestName: data.checkin?.guest?.fullName,
-          message: `Welcome! Checked in at ${staffInfo?.stationId || 'door station'}.`,
+          message: `Welcome! Checked in at ${staffInfo?.stationId || 'entrance'}.`,
           wasRsvpd: data.wasRsvpd,
         });
+
+        // Update local search results state if present
+        setSearchResults((prev) =>
+          prev.map((g) =>
+            g.id === data.checkin?.guest?.id || g.guestQrToken === identifier
+              ? { ...g, isCheckedIn: true, checkedInAt: new Date().toISOString() }
+              : g,
+          ),
+        );
       }
     } catch (e) {
       // Network error -> queue locally
-      const cached = getGuestCache().find((g) => g.guestQrToken === guestQrToken);
-      enqueueCheckin(guestQrToken, staffInfo?.stationId);
+      const cached = getGuestCache().find((g) => g.guestQrToken === identifier);
+      enqueueCheckin(identifier, staffInfo?.stationId);
       setQueuedCount(getQueuedCheckins().length);
 
       onCheckinResult({
@@ -177,11 +287,10 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
     }
   };
 
-  const handleManualSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!manualToken.trim()) return;
-    handleQrScanned(manualToken.trim());
-    setManualToken('');
+    if (!searchQuery.trim()) return;
+    handleCheckin(searchQuery.trim());
   };
 
   return (
@@ -189,9 +298,9 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
       {/* Station Info Bar */}
       <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px' }}>
         <div>
-          <div style={{ fontWeight: 800 }}>{staffInfo?.name || 'Staff Operator'}</div>
+          <div style={{ fontWeight: 800, color: 'var(--text-main)' }}>{staffInfo?.name || 'Staff Operator'}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Station: {staffInfo?.stationId || 'Door'}
+            Station: {staffInfo?.stationId || 'Main Entrance'}
           </div>
         </div>
 
@@ -209,6 +318,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           <button
             onClick={onLogout}
             style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+            title="Log Out"
           >
             <LogOut size={18} />
           </button>
@@ -220,7 +330,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         <div
           style={{
             backgroundColor: 'var(--warning-bg)',
-            border: '1px solid var(--warning)',
+            border: '1px solid #fde68a',
             color: 'var(--warning)',
             padding: '12px',
             borderRadius: 'var(--radius-md)',
@@ -248,9 +358,10 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         <div className="scanner-viewport">
           <div id="qr-reader" />
           {!isScanning && (
-            <div style={{ padding: '24px', color: 'var(--text-muted)' }}>
-              <Camera size={48} style={{ marginBottom: '12px', opacity: 0.6 }} />
-              <div>Camera is paused</div>
+            <div style={{ padding: '24px', color: '#94a3b8' }}>
+              <Camera size={48} style={{ marginBottom: '12px', opacity: 0.8, color: '#f59e0b' }} />
+              <div style={{ fontWeight: 700, color: '#f8fafc' }}>Camera Scanner Paused</div>
+              <div style={{ fontSize: '0.8rem', marginTop: '4px', opacity: 0.85, color: '#cbd5e1' }}>Scan guest QR codes directly</div>
             </div>
           )}
         </div>
@@ -263,7 +374,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           ) : (
             <button
               className="btn-primary"
-              style={{ backgroundColor: '#475569' }}
+              style={{ backgroundColor: '#64748b', backgroundImage: 'none' }}
               onClick={stopScanner}
             >
               Pause Camera
@@ -272,23 +383,143 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         </div>
       </div>
 
-      {/* Manual Input Fallback */}
+      {/* Passcode & Name Search / Manual Lookup */}
       <div className="card">
-        <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Keyboard size={16} /> Manual Token Entry
+        <div style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '10px', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Search size={16} /> Passcode / Name Lookup (No QR Needed)
         </div>
-        <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: '8px' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '8px' }}>
           <input
             type="text"
             className="input-text"
-            placeholder="Paste or type guestQrToken..."
-            value={manualToken}
-            onChange={(e) => setManualToken(e.target.value)}
+            placeholder="Type code (e.g. INV-C8A301) or guest name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button type="submit" className="btn-primary" style={{ width: 'auto', padding: '0 20px' }}>
+          <button type="submit" className="btn-primary" style={{ width: 'auto', padding: '0 18px', whiteSpace: 'nowrap' }}>
             Check In
           </button>
         </form>
+
+        {isSearching && (
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+            Searching guests...
+          </div>
+        )}
+
+        {/* Live Search Results */}
+        {searchResults.length > 0 && (
+          <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Found {searchResults.length} Matching Guest(s):
+            </div>
+            {searchResults.map((guest) => (
+              <div
+                key={guest.id}
+                style={{
+                  background: '#f8fafc',
+                  border: '1.5px solid #e2e8f0',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '12px 14px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-main)' }}>
+                      {guest.fullName}
+                    </span>
+                    <span
+                      style={{
+                        background: '#fef3c7',
+                        color: '#b45309',
+                        border: '1px solid #fde68a',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      {guest.invitationCode}
+                    </span>
+                    {guest.passcode && (
+                      <span
+                        style={{
+                          background: '#ffe4e6',
+                          color: '#be123c',
+                          border: '1px solid #fecdd3',
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        {guest.passcode}
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap', fontSize: '0.75rem' }}>
+                    {guest.tableNumber && (
+                      <span style={{ background: '#e2e8f0', color: '#334155', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        Table {guest.tableNumber}
+                      </span>
+                    )}
+                    {guest.relationshipGroup && (
+                      <span style={{ background: '#e2e8f0', color: '#334155', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        {guest.relationshipGroup}
+                      </span>
+                    )}
+                    {guest.isAttending === true ? (
+                      <span style={{ color: '#059669', fontWeight: 700 }}>✓ RSVP Confirmed</span>
+                    ) : guest.isAttending === false ? (
+                      <span style={{ color: '#dc2626', fontWeight: 700 }}>Declined</span>
+                    ) : (
+                      <span style={{ color: '#d97706', fontWeight: 700 }}>Pending RSVP</span>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  {guest.isCheckedIn ? (
+                    <div
+                      style={{
+                        background: 'var(--success-bg)',
+                        color: 'var(--success)',
+                        border: '1px solid #a7f3d0',
+                        padding: '6px 12px',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '0.8rem',
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      <CheckCircle2 size={14} /> In
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleCheckin(guest.guestQrToken || guest.passcode || guest.id)}
+                      className="btn-primary"
+                      style={{
+                        padding: '8px 14px',
+                        fontSize: '0.82rem',
+                        borderRadius: '8px',
+                        width: 'auto',
+                      }}
+                    >
+                      Pass / In
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

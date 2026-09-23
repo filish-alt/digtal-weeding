@@ -58,13 +58,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <button
-            className="theme-toggle-btn"
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
-          <button
             className="logout-btn"
             onClick={logout}
             title="Log out"

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePlatformAuth } from '../context/PlatformAuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Heart, Lock, Mail, User, AlertCircle, Sparkles, Crown, Sun, Moon, Shield } from 'lucide-react';
+import { Heart, Lock, Mail, User, AlertCircle, Sparkles, Crown, Sun, Moon, Shield, Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login, signup } = useAuth();
@@ -15,6 +15,7 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,15 +48,6 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="login-wrapper">
-      {/* Floating theme toggle button */}
-      <button
-        className="login-theme-toggle"
-        onClick={toggleTheme}
-        title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-      >
-        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-        <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-      </button>
 
       {/* Ambient background glow circles */}
       <div className="login-ambient-orb orb-1" />
@@ -207,16 +199,39 @@ export const LoginPage: React.FC = () => {
 
             <div className="login-input-group">
               <label className="login-label">Password</label>
-              <div className="input-with-icon">
+              <div className="input-with-icon" style={{ position: 'relative' }}>
                 <Lock size={18} className="input-icon" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="login-input"
+                  style={{ paddingRight: '44px' }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: '#8b6e82',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'color 0.2s ease',
+                  }}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 

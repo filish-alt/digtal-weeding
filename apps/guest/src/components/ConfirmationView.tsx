@@ -1,8 +1,9 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckCircle, QrCode } from 'lucide-react';
+import { CheckCircle, QrCode, KeyRound, Info } from 'lucide-react';
 import { Guest } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { formatGuestPassCode, formatInvitationCode } from '../utils/passcode';
 
 interface ConfirmationViewProps {
   guests: Guest[];
@@ -16,6 +17,7 @@ export const ConfirmationView: React.FC<ConfirmationViewProps> = ({
   const { t } = useLanguage();
   const attendingGuests = guests.filter((g) => g.isAttending === true);
   const decliningGuests = guests.filter((g) => g.isAttending === false);
+  const primaryInvitationId = guests[0]?.invitationId;
 
   return (
     <div className="confirmation-container">
@@ -27,6 +29,28 @@ export const ConfirmationView: React.FC<ConfirmationViewProps> = ({
         <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
           {t.rsvpConfirmedSubtitle}
         </p>
+
+        {primaryInvitationId && (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginTop: '16px',
+              padding: '6px 18px',
+              borderRadius: '999px',
+              background: 'var(--cta-light)',
+              border: '1.5px solid var(--cta-color)',
+              color: 'var(--cta-color)',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              letterSpacing: '1px',
+            }}
+          >
+            <KeyRound size={16} />
+            <span>{t.passcodeNotice} <code>{formatInvitationCode(primaryInvitationId)}</code></span>
+          </div>
+        )}
       </div>
 
       <section className="info-card" style={{ marginTop: '24px' }}>
@@ -37,30 +61,76 @@ export const ConfirmationView: React.FC<ConfirmationViewProps> = ({
           {t.digitalPassSubtitle}
         </p>
 
+        {/* Fallback Notice for Guests without QR Scanner / Printing */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px',
+            padding: '12px 16px',
+            background: 'var(--verse-bg)',
+            border: '1.5px solid var(--verse-border)',
+            borderRadius: 'var(--radius-md)',
+            marginBottom: '20px',
+            fontSize: '0.86rem',
+            color: 'var(--text-dark)',
+            lineHeight: 1.5,
+          }}
+        >
+          <Info size={18} style={{ color: 'var(--cta-color)', flexShrink: 0, marginTop: '2px' }} />
+          <div>
+            <strong>{t.passcodeLabel}:</strong> {t.cantScanNotice}
+          </div>
+        </div>
+
         {attendingGuests.length > 0 ? (
           <div className="qr-card-list">
-            {attendingGuests.map((guest) => (
-              <div key={guest.id} className="qr-card">
-                <div className="qr-guest-name">{guest.fullName}</div>
-                <div className="qr-table-info">
-                  {guest.tableNumber ? `${t.tableNumber} ${guest.tableNumber}` : t.tableNotAssigned}
-                  {guest.relationshipGroup ? ` • ${guest.relationshipGroup}` : ''}
-                </div>
+            {attendingGuests.map((guest) => {
+              const passCode = formatGuestPassCode(guest.id || guest.guestQrToken);
+              return (
+                <div key={guest.id} className="qr-card">
+                  <div className="qr-guest-name">{guest.fullName}</div>
 
-                <div className="qr-code-wrapper">
-                  <QRCodeSVG
-                    value={guest.guestQrToken}
-                    size={160}
-                    level="H"
-                    includeMargin
-                  />
-                </div>
+                  <div className="qr-badges-row">
+                    {guest.tableNumber ? (
+                      <span className="qr-table-badge">
+                        {t.tableNumber}: {guest.tableNumber}
+                      </span>
+                    ) : null}
+                    {guest.relationshipGroup ? (
+                      <span className="qr-group-badge">
+                        {guest.relationshipGroup}
+                      </span>
+                    ) : null}
+                    {!guest.tableNumber && !guest.relationshipGroup && (
+                      <span className="qr-guest-badge">
+                        {t.attending}
+                      </span>
+                    )}
+                  </div>
 
-                <div className="qr-instruction">
-                  {t.scanNotice}
+                  <div className="qr-code-wrapper">
+                    <QRCodeSVG
+                      value={guest.guestQrToken}
+                      size={170}
+                      level="H"
+                      includeMargin={false}
+                    />
+                  </div>
+
+                  {/* Unique Passcode Box */}
+                  <div className="qr-passcode-box">
+                    <KeyRound size={14} style={{ color: '#d97706' }} />
+                    <span>{t.passcodeNotice}</span>
+                    <span className="qr-passcode-code">{passCode}</span>
+                  </div>
+
+                  <div className="qr-instruction">
+                    {t.scanNotice}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="state-container" style={{ minHeight: '120px' }}>

@@ -136,6 +136,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({ event }) => {
             <thead>
               <tr>
                 <th>Primary Contact / Household</th>
+                <th>Passcode</th>
                 <th>Party Cap (Allowed)</th>
                 <th>RSVP Confirmed</th>
                 <th>Delivery Channel</th>
@@ -144,89 +145,106 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({ event }) => {
               </tr>
             </thead>
             <tbody>
-              {invitations.map((inv) => (
-                <tr key={inv.id}>
-                  <td style={{ fontWeight: 700 }}>
-                    {inv.primaryContactName}
-                    {inv.phone && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {inv.phone}
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    {inv.partySizeAllowed !== null && inv.partySizeAllowed !== undefined ? (
-                      <span className="badge badge-warning">
-                        Cap: {inv.partySizeAllowed}
-                      </span>
-                    ) : (
-                      <span className="badge badge-neutral">Unlimited</span>
-                    )}
-                  </td>
-                  <td>
-                    <span className="badge badge-success">
-                      {inv.partySizeConfirmed ?? 0} confirmed
-                    </span>
-                  </td>
-                  <td>
-                    <span className="badge badge-neutral">
-                      {inv.deliveryChannel || 'Direct Link'}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <code style={{ fontSize: '0.8rem', background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>
-                        {inv.inviteLinkToken.slice(0, 10)}...
-                      </code>
-                      <button
-                        className="btn btn-outline"
-                        style={{ padding: '4px 8px', fontSize: '0.75rem' }}
-                        onClick={() => copyInviteUrl(inv.inviteLinkToken)}
-                      >
-                        {copiedToken === inv.inviteLinkToken ? (
-                          <Check size={12} style={{ color: 'var(--success)' }} />
-                        ) : (
-                          <Copy size={12} />
-                        )}
-                      </button>
-                    </div>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
-                        className="btn btn-outline"
-                        style={{ padding: '6px' }}
-                        onClick={() => {
-                          setEditInv(inv);
-                          setPrimaryContactName(inv.primaryContactName);
-                          setPhone(inv.phone || '');
-                          setDeliveryChannel(inv.deliveryChannel || 'whatsapp');
-                          setPartySizeAllowed(
-                            inv.partySizeAllowed !== null && inv.partySizeAllowed !== undefined
-                              ? inv.partySizeAllowed
-                              : '',
-                          );
-                          setShowModal(true);
+              {invitations.map((inv) => {
+                const inviteCode = `INV-${inv.id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
+                return (
+                  <tr key={inv.id}>
+                    <td style={{ fontWeight: 700 }}>
+                      {inv.primaryContactName}
+                      {inv.phone && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {inv.phone}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <span
+                        className="badge"
+                        style={{
+                          background: '#fef3c7',
+                          color: '#b45309',
+                          fontWeight: 800,
+                          letterSpacing: '0.5px',
+                          border: '1px solid #fde68a',
                         }}
                       >
-                        <Edit size={14} />
-                      </button>
-                      <a
-                        href={`http://localhost:3001/invite/${inv.inviteLinkToken}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn btn-outline"
-                        style={{ padding: '6px', color: 'var(--primary)' }}
-                      >
-                        <ExternalLink size={14} />
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {inviteCode}
+                      </span>
+                    </td>
+                    <td>
+                      {inv.partySizeAllowed !== null && inv.partySizeAllowed !== undefined ? (
+                        <span className="badge badge-warning">
+                          Cap: {inv.partySizeAllowed}
+                        </span>
+                      ) : (
+                        <span className="badge badge-neutral">Unlimited</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="badge badge-success">
+                        {inv.partySizeConfirmed ?? 0} confirmed
+                      </span>
+                    </td>
+                    <td>
+                      <span className="badge badge-neutral">
+                        {inv.deliveryChannel || 'Direct Link'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <code style={{ fontSize: '0.8rem', background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>
+                          {inv.inviteLinkToken.slice(0, 10)}...
+                        </code>
+                        <button
+                          className="btn btn-outline"
+                          style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                          onClick={() => copyInviteUrl(inv.inviteLinkToken)}
+                        >
+                          {copiedToken === inv.inviteLinkToken ? (
+                            <Check size={12} style={{ color: 'var(--success)' }} />
+                          ) : (
+                            <Copy size={12} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          className="btn btn-outline"
+                          style={{ padding: '6px' }}
+                          onClick={() => {
+                            setEditInv(inv);
+                            setPrimaryContactName(inv.primaryContactName);
+                            setPhone(inv.phone || '');
+                            setDeliveryChannel(inv.deliveryChannel || 'whatsapp');
+                            setPartySizeAllowed(
+                              inv.partySizeAllowed !== null && inv.partySizeAllowed !== undefined
+                                ? inv.partySizeAllowed
+                                : '',
+                            );
+                            setShowModal(true);
+                          }}
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <a
+                          href={`http://localhost:3001/invite/${inv.inviteLinkToken}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-outline"
+                          style={{ padding: '6px', color: 'var(--primary)' }}
+                        >
+                          <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {invitations.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
                     No invitations created yet. Click "New Invitation" to create one.
                   </td>
                 </tr>

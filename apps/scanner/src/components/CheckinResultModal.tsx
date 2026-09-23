@@ -54,7 +54,7 @@ export const CheckinResultModal: React.FC<CheckinResultModalProps> = ({
         <h3 className="result-title">{result.title}</h3>
 
         {result.guestName && (
-          <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '8px', color: '#ffffff' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
             {result.guestName}
           </div>
         )}
@@ -66,6 +66,7 @@ export const CheckinResultModal: React.FC<CheckinResultModalProps> = ({
             style={{
               fontSize: '0.8rem',
               backgroundColor: 'var(--warning-bg)',
+              border: '1px solid #fde68a',
               color: 'var(--warning)',
               padding: '6px 10px',
               borderRadius: '8px',

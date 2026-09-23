@@ -323,9 +323,27 @@ export const GuestListPage: React.FC<GuestListPageProps> = ({ event }) => {
                   <span className="badge badge-neutral">Not Checked In</span>
                 );
 
+                const guestPasscode = `PASS-${guest.id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
+
                 return (
                   <tr key={guest.id}>
-                    <td style={{ fontWeight: 700 }}>{guest.fullName}</td>
+                    <td>
+                      <div style={{ fontWeight: 700 }}>{guest.fullName}</div>
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '3px' }}>
+                        <span
+                          className="badge"
+                          style={{
+                            fontSize: '0.7rem',
+                            padding: '1px 6px',
+                            background: '#fef3c7',
+                            color: '#b45309',
+                            border: '1px solid #fde68a',
+                          }}
+                        >
+                          {guestPasscode}
+                        </span>
+                      </div>
+                    </td>
                     <td>{guest.relationshipGroup || '—'}</td>
                     <td>{rsvpBadge}</td>
                     <td>{checkinBadge}</td>

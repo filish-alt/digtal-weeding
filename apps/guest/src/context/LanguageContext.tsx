@@ -42,6 +42,9 @@ export interface Translations {
   attending: string;
   declined: string;
   scanNotice: string;
+  passcodeLabel: string;
+  passcodeNotice: string;
+  cantScanNotice: string;
   editRsvp: string;
 }
 
@@ -82,6 +85,9 @@ export const translations: Record<Language, Translations> = {
     attending: 'Attending',
     declined: 'Declined',
     scanNotice: 'Show this QR pass at the entrance on wedding day',
+    passcodeLabel: 'Entry Passcode',
+    passcodeNotice: 'Passcode:',
+    cantScanNotice: 'Cannot scan or show QR? Simply tell this Passcode or your name to the door staff.',
     editRsvp: 'Update RSVP Response',
   },
   am: {
@@ -120,6 +126,9 @@ export const translations: Record<Language, Translations> = {
     attending: 'ይገኛሉ',
     declined: 'አይገኙም',
     scanNotice: 'ይህን የQR ኮድ በሰርጉ መግቢያ በር ላይ ያሳዩ',
+    passcodeLabel: 'የመግቢያ ፈጣን ኮድ',
+    passcodeNotice: 'የመግቢያ ኮድ:',
+    cantScanNotice: 'QR ኮድ ማሳየት ካልቻሉ፣ ይህንን የመግቢያ ኮድ ወይም ስምዎን ለበር አስተናጋጆች በመንገር መግባት ይችላሉ።',
     editRsvp: 'የመገኘት ምላሽህን አሻሽል',
   },
 };

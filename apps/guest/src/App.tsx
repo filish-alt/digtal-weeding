@@ -161,16 +161,6 @@ const GuestAppContent: React.FC = () => {
           <Globe size={16} />
           <span style={{ fontWeight: 800 }}>{language === 'en' ? '🇪🇹 አማርኛ' : '🇺🇸 English'}</span>
         </button>
-
-        <button
-          type="button"
-          className="guest-theme-toggle"
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        >
-          {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
-          <span>{theme === 'dark' ? t.lightView : t.darkView}</span>
-        </button>
       </div>
 
       {/* PHYSICAL PRINTABLE CARD VIEW */}
